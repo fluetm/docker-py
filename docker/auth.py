@@ -192,6 +192,7 @@ class AuthConfig(dict):
             log.debug("Found 'credHelpers' section")
             res.update({'credHelpers': config_dict.pop('credHelpers')})
         if res:
+            log.debug('MJF -> res={0}'.format(res))
             return cls(res, credstore_env)
 
         log.debug(
@@ -226,6 +227,8 @@ class AuthConfig(dict):
         for a match. Returns None if no match was found.
         """
 
+        log.debug("MJF -> resolve_authconfig for {0}".format(registry))
+
         if self.creds_store or self.cred_helpers:
             store_name = self.get_credential_store(registry)
             if store_name is not None:
@@ -258,6 +261,9 @@ class AuthConfig(dict):
             # The ecosystem is a little schizophrenic with index.docker.io VS
             # docker.io - in that case, it seems the full URL is necessary.
             registry = INDEX_URL
+
+        log.debug("MJF -> _resolve_authconfig_credstore for {0}".format(registry))
+
         log.debug("Looking for auth entry for {0}".format(repr(registry)))
         store = self._get_store_instance(credstore_name)
         try:
@@ -296,16 +302,25 @@ class AuthConfig(dict):
 
     def get_all_credentials(self):
         auth_data = self.auths.copy()
+
+        log.debug("MJF -> get_all_credentials auth_data={0}".format(auth_data))
+
         if self.creds_store:
+            log.debug("MJF getting from creds_store {0}".format(self.creds_store))
             # Retrieve all credentials from the default store
             store = self._get_store_instance(self.creds_store)
+            log.debug("MJF store contains={0}".format(store.list()))
             for k in store.list().keys():
+                log.debug("MJF processing store key={0}".format(k))
                 auth_data[k] = self._resolve_authconfig_credstore(
                     k, self.creds_store
                 )
 
+        log.debug("MJF -> get_all_credentials auth_data={0}".format(auth_data))
+
         # credHelpers entries take priority over all others
         for reg, store_name in self.cred_helpers.items():
+            log.debug("MJF -> cred_helpers store_name={0}".format(store_name))
             auth_data[reg] = self._resolve_authconfig_credstore(
                 reg, store_name
             )

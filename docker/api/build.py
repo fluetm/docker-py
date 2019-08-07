@@ -306,6 +306,7 @@ class BuildApiMixin(object):
         # could use any (or all) of the registries.
         if self._auth_configs:
             auth_data = self._auth_configs.get_all_credentials()
+            log.debug("MJF -> auth_data = {0}".format(auth_data))
 
             # See https://github.com/docker/docker-py/issues/1683
             if (auth.INDEX_URL not in auth_data and
