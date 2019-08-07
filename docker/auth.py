@@ -315,6 +315,7 @@ class AuthConfig(dict):
                 auth_data[k] = self._resolve_authconfig_credstore(
                     k, self.creds_store
                 )
+                auth_data[convert_to_hostname(k)] = auth_data[k]
 
         log.debug("MJF -> get_all_credentials auth_data={0}".format(auth_data))
 
